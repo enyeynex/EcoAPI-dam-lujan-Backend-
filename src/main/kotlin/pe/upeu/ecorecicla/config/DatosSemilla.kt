@@ -47,6 +47,7 @@ class DatosSemilla(
             sembrarTodo()
             log.info("Datos semilla cargados")
         }
+        completarHumedad()
         asegurarRutaDeHoy()
     }
 
@@ -125,6 +126,20 @@ class DatosSemilla(
         pesaje(rutaHoy, padron[2], hoy.atTime(9, 5), "Cartón", 12.0, 2.0, operario1)
     }
 
+    /**
+     * SC-C: una base sembrada antes de agregar la humedad estimada tiene la
+     * columna vacia. En cada arranque se completa con un valor determinista
+     * (8,5 % a 15 %) para que los datos semilla queden actualizados.
+     */
+    private fun completarHumedad() {
+        val sinHumedad = pesajes.findAll().filter { it.humedadEstimada == null }
+        sinHumedad.forEach { it.humedadEstimada = humedadSemilla(it.id ?: 0L) }
+        if (sinHumedad.isNotEmpty()) log.info("Humedad estimada completada en {} pesajes", sinHumedad.size)
+    }
+
+    private fun humedadSemilla(clave: Long): BigDecimal =
+        BigDecimal.valueOf(8.5 + (clave % 14) * 0.5).setScale(2)
+
     /** En cualquier dia de demostracion operario1 tiene una ruta abierta. */
     private fun asegurarRutaDeHoy() {
         val operario1 = usuarios.findByUsername("operario1") ?: return
@@ -166,7 +181,8 @@ class DatosSemilla(
             Pesaje(
                 ruta = ruta, punto = punto, fechaHora = cuando, material = material,
                 pesoBruto = b, tara = t, pesoNeto = b.subtract(t), operario = operario,
-                anulado = anulado != null, motivoAnulacion = anulado
+                anulado = anulado != null, motivoAnulacion = anulado,
+                humedadEstimada = humedadSemilla(pesajes.count() + 1)
             )
         )
     }
