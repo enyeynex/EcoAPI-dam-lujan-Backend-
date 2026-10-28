@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ecorecicla
+      POSTGRES_USER: eco
+      POSTGRES_PASSWORD: eco
+    ports:
+      - "5432:5432"

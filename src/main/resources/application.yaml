@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ecoapi
+  # La conexion a PostgreSQL la aporta compose.yaml: al ejecutar bootRun,
+  # spring-boot-docker-compose levanta el contenedor y configura el datasource.
+  docker:
+    compose:
+      lifecycle-management: start-only
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+app:
+  jwt:
+    # Clave HMAC en Base64 (256 bits). Solo para desarrollo.
+    secret: "kP3vH8nQ2sW6yZ1bD4fG7jL0mR5tU9xA2cE6hK8pN3q="
+    expiracion-minutos: 60
