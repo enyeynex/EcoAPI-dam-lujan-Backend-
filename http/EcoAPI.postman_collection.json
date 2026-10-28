@@ -1,0 +1,494 @@
+{
+  "info": {
+    "name": "EcoAPI - EcoRecicla",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "tokenOperario",
+      "value": ""
+    },
+    {
+      "key": "tokenSupervisor",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "rutaId",
+      "value": ""
+    },
+    {
+      "key": "puntoId",
+      "value": ""
+    },
+    {
+      "key": "pesajeId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Login operario (200) — copia el token en @tokenOperario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\":\"operario1\",\"clave\":\"Eco2026*\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.collectionVariables.set(\"tokenOperario\", b.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Login supervisor (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\":\"supervisor1\",\"clave\":\"Eco2026*\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.collectionVariables.set(\"tokenSupervisor\", b.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Login admin (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\":\"admin\",\"clave\":\"Eco2026*\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.collectionVariables.set(\"tokenAdmin\", b.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Credenciales incorrectas (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\":\"operario1\",\"clave\":\"mala\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "5. Sin token (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base}}/rutas/hoy"
+      }
+    },
+    {
+      "name": "6. Token alterado (401)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}xx"
+          }
+        ],
+        "url": "{{base}}/rutas/hoy"
+      }
+    },
+    {
+      "name": "7. Usuario actual (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          }
+        ],
+        "url": "{{base}}/auth/me"
+      }
+    },
+    {
+      "name": "8. Ruta del día (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          }
+        ],
+        "url": "{{base}}/rutas/hoy"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.collectionVariables.set(\"rutaId\", b.id);",
+              "pm.collectionVariables.set(\"puntoId\", b.puntos[5].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Puntos de acopio paginados y filtrados (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          }
+        ],
+        "url": "{{base}}/puntos?zona=Norte&pagina=0&tamanio=5"
+      }
+    },
+    {
+      "name": "10. Pesajes de un punto (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          }
+        ],
+        "url": "{{base}}/puntos/1/pesajes?pagina=0&tamanio=20"
+      }
+    },
+    {
+      "name": "11. Registrar pesaje (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"Cartón\",\"pesoBruto\":120.5,\"tara\":5.2,\"observacion\":\"Recojo normal\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.collectionVariables.set(\"pesajeId\", b.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. RN-03: neto no positivo (400 con validationErrors.tara)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"Cartón\",\"pesoBruto\":5,\"tara\":5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "13. Validación de formato (400 por campo)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"\",\"pesoBruto\":-1,\"tara\":-2}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "14. Admin sin PESAJE_CREAR (403)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"Cartón\",\"pesoBruto\":10,\"tara\":1}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "15. Corregir el propio pesaje (200)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes/{{pesajeId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"material\":\"Cartón\",\"pesoBruto\":118,\"tara\":5.2,\"observacion\":\"Corregido\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "16. RN-02: operario1 corrige un pesaje de operario2 (403) — pesaje 11 en los datos semilla",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes/11",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"material\":\"Plástico PET\",\"pesoBruto\":50,\"tara\":3.5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "17. Operario intenta anular (403)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          }
+        ],
+        "url": "{{base}}/pesajes/{{pesajeId}}?motivo=Prueba"
+      }
+    },
+    {
+      "name": "18. Supervisor anula (204)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenSupervisor}}"
+          }
+        ],
+        "url": "{{base}}/pesajes/{{pesajeId}}?motivo=Pesaje duplicado"
+      }
+    },
+    {
+      "name": "19. RN-04: cerrar con puntos sin pesar (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenSupervisor}}"
+          }
+        ],
+        "url": "{{base}}/rutas/{{rutaId}}/cierre"
+      }
+    },
+    {
+      "name": "20. RN-01: registrar en la ruta de ayer, cerrada (409) — ruta 1 en los datos semilla",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenSupervisor}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":1,\"puntoId\":7,\"material\":\"Vidrio\",\"pesoBruto\":20,\"tara\":1}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "21. Recurso inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          }
+        ],
+        "url": "{{base}}/puntos/9999/pesajes"
+      }
+    }
+  ]
+}

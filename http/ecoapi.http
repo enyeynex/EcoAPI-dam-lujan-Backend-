@@ -1,0 +1,124 @@
+### Variables
+@base = http://localhost:8080/api/v1
+
+### 1. Login operario (200) — copia el token en @tokenOperario
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{"usuario":"operario1","clave":"Eco2026*"}
+
+> {% client.global.set("tokenOperario", response.body.token); %}
+
+### 2. Login supervisor (200)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{"usuario":"supervisor1","clave":"Eco2026*"}
+
+> {% client.global.set("tokenSupervisor", response.body.token); %}
+
+### 3. Login admin (200)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{"usuario":"admin","clave":"Eco2026*"}
+
+> {% client.global.set("tokenAdmin", response.body.token); %}
+
+### 4. Credenciales incorrectas (401)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{"usuario":"operario1","clave":"mala"}
+
+### 5. Sin token (401)
+GET {{base}}/rutas/hoy
+
+### 6. Token alterado (401)
+GET {{base}}/rutas/hoy
+Authorization: Bearer {{tokenOperario}}xx
+
+### 7. Usuario actual (200)
+GET {{base}}/auth/me
+Authorization: Bearer {{tokenOperario}}
+
+### 8. Ruta del día (200)
+GET {{base}}/rutas/hoy
+Authorization: Bearer {{tokenOperario}}
+
+> {% client.global.set("rutaId", response.body.id); client.global.set("puntoId", response.body.puntos[5].id); %}
+
+### 9. Puntos de acopio paginados y filtrados (200)
+GET {{base}}/puntos?zona=Norte&pagina=0&tamanio=5
+Authorization: Bearer {{tokenOperario}}
+
+### 10. Pesajes de un punto (200)
+GET {{base}}/puntos/1/pesajes?pagina=0&tamanio=20
+Authorization: Bearer {{tokenOperario}}
+
+### 11. Registrar pesaje (201)
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenOperario}}
+Content-Type: application/json
+
+{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"Recojo normal"}
+
+> {% client.global.set("pesajeId", response.body.id); %}
+
+### 12. RN-03: neto no positivo (400 con validationErrors.tara)
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenOperario}}
+Content-Type: application/json
+
+{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"Cartón","pesoBruto":5,"tara":5}
+
+### 13. Validación de formato (400 por campo)
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenOperario}}
+Content-Type: application/json
+
+{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"","pesoBruto":-1,"tara":-2}
+
+### 14. Admin sin PESAJE_CREAR (403)
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"Cartón","pesoBruto":10,"tara":1}
+
+### 15. Corregir el propio pesaje (200)
+PUT {{base}}/pesajes/{{pesajeId}}
+Authorization: Bearer {{tokenOperario}}
+Content-Type: application/json
+
+{"material":"Cartón","pesoBruto":118,"tara":5.2,"observacion":"Corregido"}
+
+### 16. RN-02: operario1 corrige un pesaje de operario2 (403) — pesaje 11 en los datos semilla
+PUT {{base}}/pesajes/11
+Authorization: Bearer {{tokenOperario}}
+Content-Type: application/json
+
+{"material":"Plástico PET","pesoBruto":50,"tara":3.5}
+
+### 17. Operario intenta anular (403)
+DELETE {{base}}/pesajes/{{pesajeId}}?motivo=Prueba
+Authorization: Bearer {{tokenOperario}}
+
+### 18. Supervisor anula (204)
+DELETE {{base}}/pesajes/{{pesajeId}}?motivo=Pesaje duplicado
+Authorization: Bearer {{tokenSupervisor}}
+
+### 19. RN-04: cerrar con puntos sin pesar (409)
+POST {{base}}/rutas/{{rutaId}}/cierre
+Authorization: Bearer {{tokenSupervisor}}
+
+### 20. RN-01: registrar en la ruta de ayer, cerrada (409) — ruta 1 en los datos semilla
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenSupervisor}}
+Content-Type: application/json
+
+{"rutaId":1,"puntoId":7,"material":"Vidrio","pesoBruto":20,"tara":1}
+
+### 21. Recurso inexistente (404)
+GET {{base}}/puntos/9999/pesajes
+Authorization: Bearer {{tokenOperario}}
