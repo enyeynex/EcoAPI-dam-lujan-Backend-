@@ -47,6 +47,7 @@ class DatosSemilla(
             sembrarTodo()
             log.info("Datos semilla cargados")
         }
+        asegurarAuditor()
         asegurarRutaDeHoy()
     }
 
@@ -123,6 +124,27 @@ class DatosSemilla(
         pesaje(rutaHoy, padron[2], hoy.atTime(8, 55), "Cartón", 64.0, 5.0, operario1)
         pesaje(rutaHoy, padron[2], hoy.atTime(9, 0), "Papel", 18.0, 2.0, supervisor1)
         pesaje(rutaHoy, padron[2], hoy.atTime(9, 5), "Cartón", 12.0, 2.0, operario1)
+    }
+
+    /**
+     * SC-B: rol AUDITOR con todos los privilegios de lectura y ninguno de
+     * escritura. Es solo un dato mas de la matriz: ni el filtro de seguridad
+     * ni los controladores preguntan por el nombre del rol. Se agrega en cada
+     * arranque si falta, para que tambien llegue a una base ya sembrada.
+     */
+    private fun asegurarAuditor() {
+        val auditor = roles.findByNombre("AUDITOR") ?: roles.save(
+            Rol(
+                "AUDITOR",
+                listOf(Privilegios.PUNTO_LEER, Privilegios.PESAJE_LEER)
+                    .mapNotNull { privilegios.findByNombre(it) }
+                    .toMutableSet()
+            )
+        )
+        if (usuarios.findByUsername("auditor1") == null) {
+            usuarios.save(Usuario("auditor1", encoder.encode("Eco2026*"), "Ana Torres Delgado", auditor))
+            log.info("Se agregó el rol AUDITOR y el usuario auditor1")
+        }
     }
 
     /** En cualquier dia de demostracion operario1 tiene una ruta abierta. */
