@@ -58,6 +58,7 @@ class PesajeServicio(
             tara = tara,
             pesoNeto = calcularNeto(bruto, tara),                    // RN-03
             observacion = peticion.observacion?.trim()?.ifBlank { null },
+            humedadEstimada = peticion.humedadEstimada?.let(::decimal),
             operario = usuarios.getReferenceById(usuario.id)
         )
         return pesajes.save(pesaje).aRespuesta()
@@ -78,6 +79,7 @@ class PesajeServicio(
         pesaje.tara = tara
         pesaje.material = peticion.material!!.trim()
         pesaje.observacion = peticion.observacion?.trim()?.ifBlank { null }
+        pesaje.humedadEstimada = peticion.humedadEstimada?.let(::decimal)
         return pesaje.aRespuesta()
     }
 

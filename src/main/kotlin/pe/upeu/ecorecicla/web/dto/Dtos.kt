@@ -1,6 +1,7 @@
 package pe.upeu.ecorecicla.web.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -127,7 +128,10 @@ data class PesajeRequest(
     @field:PositiveOrZero(message = "La tara no puede ser negativa")
     val tara: Double? = null,
     @field:Size(max = 250, message = "Máximo 250 caracteres")
-    val observacion: String? = null
+    val observacion: String? = null,
+    @field:DecimalMin(value = "0.0", message = "La humedad debe estar entre 0 y 100")
+    @field:DecimalMax(value = "100.0", message = "La humedad debe estar entre 0 y 100")
+    val humedadEstimada: Double? = null
 )
 
 data class CorreccionPesajeRequest(
@@ -141,7 +145,10 @@ data class CorreccionPesajeRequest(
     @field:DecimalMin(value = "0.0", message = "La tara no puede ser negativa")
     val tara: Double? = null,
     @field:Size(max = 250, message = "Máximo 250 caracteres")
-    val observacion: String? = null
+    val observacion: String? = null,
+    @field:DecimalMin(value = "0.0", message = "La humedad debe estar entre 0 y 100")
+    @field:DecimalMax(value = "100.0", message = "La humedad debe estar entre 0 y 100")
+    val humedadEstimada: Double? = null
 )
 
 data class PesajeResponse(
@@ -156,5 +163,6 @@ data class PesajeResponse(
     val observacion: String?,
     val operario: String,
     val anulado: Boolean,
-    val motivoAnulacion: String?
+    val motivoAnulacion: String?,
+    val humedadEstimada: Double?
 )

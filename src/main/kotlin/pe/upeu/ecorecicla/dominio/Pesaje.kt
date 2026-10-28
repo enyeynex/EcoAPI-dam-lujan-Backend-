@@ -46,6 +46,10 @@ class Pesaje(
     @Column(length = 250)
     var observacion: String? = null,
 
+    /** SC-C: humedad estimada del material, en porcentaje (0 a 100). Opcional. */
+    @Column(name = "humedad_estimada", precision = 5, scale = 2)
+    var humedadEstimada: BigDecimal? = null,
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "operario_id")
     var operario: Usuario = Usuario(),

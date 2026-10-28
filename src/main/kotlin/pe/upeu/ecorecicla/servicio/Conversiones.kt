@@ -22,5 +22,6 @@ internal fun Pesaje.aRespuesta() = PesajeResponse(
     observacion = observacion,
     operario = operario.username,
     anulado = anulado,
-    motivoAnulacion = motivoAnulacion
+    motivoAnulacion = motivoAnulacion,
+    humedadEstimada = humedadEstimada?.toDouble()
 )
