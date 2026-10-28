@@ -31,6 +31,10 @@
     {
       "key": "pesajeId",
       "value": ""
+    },
+    {
+      "key": "tokenAuditor",
+      "value": ""
     }
   ],
   "item": [
@@ -488,6 +492,79 @@
           }
         ],
         "url": "{{base}}/puntos/9999/pesajes"
+      }
+    },
+    {
+      "name": "22. Login auditor (200) — SC-B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\":\"auditor1\",\"clave\":\"Eco2026*\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.collectionVariables.set(\"tokenAuditor\", b.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23. Auditor lee los puntos (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAuditor}}"
+          }
+        ],
+        "url": "{{base}}/puntos?pagina=0&tamanio=20"
+      }
+    },
+    {
+      "name": "24. Auditor intenta registrar un pesaje (403)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAuditor}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":2,\"puntoId\":4,\"material\":\"Papel\",\"pesoBruto\":20,\"tara\":1}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       }
     }
   ]

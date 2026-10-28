@@ -122,3 +122,22 @@ Content-Type: application/json
 ### 21. Recurso inexistente (404)
 GET {{base}}/puntos/9999/pesajes
 Authorization: Bearer {{tokenOperario}}
+
+### 22. Login auditor (200) — SC-B: solo PUNTO_LEER y PESAJE_LEER
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{"usuario":"auditor1","clave":"Eco2026*"}
+
+> {% client.global.set("tokenAuditor", response.body.token); %}
+
+### 23. Auditor lee los puntos (200)
+GET {{base}}/puntos?pagina=0&tamanio=20
+Authorization: Bearer {{tokenAuditor}}
+
+### 24. Auditor intenta registrar un pesaje (403)
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenAuditor}}
+Content-Type: application/json
+
+{"rutaId":2,"puntoId":4,"material":"Papel","pesoBruto":20,"tara":1}

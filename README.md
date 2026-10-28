@@ -30,6 +30,7 @@ Pruebas: `.\gradlew.bat test` (22 pruebas con H2, sin Docker).
 | operario2 | Eco2026* | OPERARIO (dueño de pesajes para demostrar RN-02) |
 | supervisor1 | Eco2026* | SUPERVISOR (supervisa la ruta del día) |
 | admin | Eco2026* | ADMINISTRADOR |
+| auditor1 | Eco2026* | AUDITOR (solo lectura, SC-B) |
 
 Las contraseñas se guardan con BCrypt.
 
@@ -103,16 +104,18 @@ El cliente **nunca envía el peso neto**: lo calcula el servicio.
 - **401**: sin token («Debe iniciar sesión…»), token alterado («El token no es válido») o vencido («El token ha expirado…»). Lo responde el `AuthenticationEntryPoint` con el formato común.
 - **403**: autenticado sin el privilegio de la ruta. Lo responde el `AccessDeniedHandler`.
 
-| Privilegio | OPERARIO | SUPERVISOR | ADMINISTRADOR |
-| --- | --- | --- | --- |
-| PUNTO_LEER | Sí | Sí | Sí |
-| PESAJE_LEER | Sí | Sí | Sí |
-| PESAJE_CREAR | Sí | Sí | No |
-| PESAJE_EDITAR | Sí (solo los propios del día) | Sí | No |
-| PESAJE_EDITAR_TODOS | No | Sí | No |
-| PESAJE_ANULAR | No | Sí | No |
-| RUTA_CERRAR | No | Sí | No |
-| PUNTO_GESTIONAR | No | No | Sí |
+| Privilegio | OPERARIO | SUPERVISOR | ADMINISTRADOR | AUDITOR |
+| --- | --- | --- | --- | --- |
+| PUNTO_LEER | Sí | Sí | Sí | Sí |
+| PESAJE_LEER | Sí | Sí | Sí | Sí |
+| PESAJE_CREAR | Sí | Sí | No | No |
+| PESAJE_EDITAR | Sí (solo los propios del día) | Sí | No | No |
+| PESAJE_EDITAR_TODOS | No | Sí | No | No |
+| PESAJE_ANULAR | No | Sí | No | No |
+| RUTA_CERRAR | No | Sí | No | No |
+| PUNTO_GESTIONAR | No | No | Sí | No |
+
+**Rol AUDITOR (solicitud de cambio SC-B).** Tiene todos los privilegios de lectura y ninguno de escritura. Para agregarlo solo se tocó `DatosSemilla.kt`, que crea el rol con `PUNTO_LEER` y `PESAJE_LEER` y el usuario `auditor1` en cada arranque si faltan, de modo que también llega a una base ya sembrada. `SecurityConfig`, `JwtAuthenticationFilter` y los controladores no cambian, porque autorizan por privilegio y nunca por nombre de rol. Pruebas: `AuditorTest`.
 
 **`PESAJE_EDITAR_TODOS`** representa la celda «Todos» frente a «Solo los propios» de la matriz. Así RN-02 se decide por privilegio y no comparando el nombre del rol: sin ese privilegio solo se corrigen los pesajes propios del mismo día.
 
