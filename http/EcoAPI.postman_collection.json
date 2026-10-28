@@ -261,7 +261,7 @@
         "url": "{{base}}/pesajes",
         "body": {
           "mode": "raw",
-          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"Cartón\",\"pesoBruto\":120.5,\"tara\":5.2,\"observacion\":\"Recojo normal\"}",
+          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"Cartón\",\"pesoBruto\":120.5,\"tara\":5.2,\"observacion\":\"Recojo normal\",\"humedadEstimada\":12.5}",
           "options": {
             "raw": {
               "language": "json"
@@ -488,6 +488,32 @@
           }
         ],
         "url": "{{base}}/puntos/9999/pesajes"
+      }
+    },
+    {
+      "name": "22. SC-C: humedad fuera de rango (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenOperario}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base}}/pesajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rutaId\":{{rutaId}},\"puntoId\":{{puntoId}},\"material\":\"Papel\",\"pesoBruto\":30,\"tara\":2,\"humedadEstimada\":150}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       }
     }
   ]

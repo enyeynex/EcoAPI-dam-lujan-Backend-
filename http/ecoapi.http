@@ -61,7 +61,7 @@ POST {{base}}/pesajes
 Authorization: Bearer {{tokenOperario}}
 Content-Type: application/json
 
-{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"Recojo normal"}
+{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"Recojo normal","humedadEstimada":12.5}
 
 > {% client.global.set("pesajeId", response.body.id); %}
 
@@ -122,3 +122,10 @@ Content-Type: application/json
 ### 21. Recurso inexistente (404)
 GET {{base}}/puntos/9999/pesajes
 Authorization: Bearer {{tokenOperario}}
+
+### 22. SC-C: humedad fuera de rango (400 con validationErrors.humedadEstimada)
+POST {{base}}/pesajes
+Authorization: Bearer {{tokenOperario}}
+Content-Type: application/json
+
+{"rutaId":{{rutaId}},"puntoId":{{puntoId}},"material":"Papel","pesoBruto":30,"tara":2,"humedadEstimada":150}

@@ -80,10 +80,10 @@ POST /auth/login       {"usuario":"operario1","clave":"Eco2026*"}
 → {"token":"…","tipo":"Bearer","expiraEnSegundos":3600,"usuario":"operario1",
    "nombreCompleto":"Luis Quispe Mamani","rol":"OPERARIO","privilegios":["PESAJE_CREAR",…]}
 
-POST /pesajes          {"rutaId":2,"puntoId":4,"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"…"}
-PUT  /pesajes/{id}     {"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"…"}
+POST /pesajes          {"rutaId":2,"puntoId":4,"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"…","humedadEstimada":12.5}
+PUT  /pesajes/{id}     {"material":"Cartón","pesoBruto":120.5,"tara":5.2,"observacion":"…","humedadEstimada":12.5}
 → PesajeDto {"id","rutaId","puntoId","fechaHora":"2026-10-28T10:15:00","material","pesoBruto",
-             "tara","pesoNeto","observacion","operario","anulado","motivoAnulacion"}
+             "tara","pesoNeto","observacion","operario","anulado","motivoAnulacion","humedadEstimada"}
 
 GET /rutas/hoy → {"id","fecha","estado":"ABIERTA","puntos":[{"id","razonSocial","direccion","zona",
                   "materialHabitual","secuencia","atendido","motivoOmision"}]}
@@ -137,3 +137,13 @@ La anulación marca el pesaje (`anulado`, `motivoAnulacion`) y responde 204; nun
 
 - `http/ecoapi.http`: cliente HTTP de IntelliJ, con ejemplos de 401, 403, 400, 404 y 409.
 - `http/EcoAPI.postman_collection.json`: la misma colección para Postman. El login guarda el token en una variable.
+
+## Humedad estimada (solicitud de cambio SC-C)
+
+El pesaje tiene el campo opcional `humedadEstimada`: porcentaje de humedad del material, entre 0 y 100 (si no, 400 con `validationErrors.humedadEstimada`). Recorre todas las capas:
+
+- `dominio/Pesaje.kt`: columna `humedad_estimada` (nullable; `ddl-auto: update` la agrega a una base existente).
+- `web/dto/Dtos.kt`: `PesajeRequest`, `CorreccionPesajeRequest` y `PesajeResponse`.
+- `servicio/PesajeServicio.kt`: se guarda al registrar y al corregir; `servicio/Conversiones.kt` la devuelve.
+- `config/DatosSemilla.kt`: los pesajes semilla nacen con humedad y, en cada arranque, se completan los que la tengan vacía.
+- Pruebas: `HumedadTest`.
